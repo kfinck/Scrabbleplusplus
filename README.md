@@ -1,0 +1,2 @@
+# Scrabbleplusplus
+Its Scrabble baby
