@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <windows.h>
+
 using namespace std;
 
 
@@ -8,18 +10,18 @@ using namespace std;
 class player
 {
 private:
-string name;
-int score;
+    string name;
+    int score;
 
 
 public:
-char tiles[7];
+    char tiles[7];
 
 
-void placeTiles()
-{
+    void placeTiles()
+    {
 
-}
+    }
 
 };
 
@@ -29,25 +31,23 @@ class tile
 };
 
 
-std::string getPlaceValueColorCode(int row, int col) {
-    // Add your custom logic to determine the place values for different positions
-    if (/* Double Letter */) {
-        return "\033[34m"; // Blue
-    } else if (/* Triple Letter */) {
-        return "\033[32m"; // Green
-    } else if (/* Double Word */) {
-        return "\033[33m"; // Yellow
-    } else if (/* Triple Word */) {
-        return "\033[31m"; // Red
-    } else {
-        return "\033[37m"; // White
-    }
-}
+
+
 class Board
 {
 private:
     vector<vector<char>> board;
 public:
+    HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    enum PlaceValue {
+        Normal,
+        DoubleLetter;
+        TripleLetter;
+        DoubleWord;
+        TripleWord;
+    };
+
 
     Board()
     {
@@ -56,24 +56,49 @@ public:
 
     }
 
-void displayBoard()
-{
-    for(int i =0 ; i < 15 ; i++)
+    void displayBoard()
     {
-        for (int j=0 ; j<15 ; j++)
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        for(int i =0 ; i < 15 ; i++)
         {
-            cout << (board[i][j] == ' ' ? '.' : board[i][j]) << " ";
+            for (int j=0 ; j<15 ; j++)
+            {
+                int k = getTileColorCode(i,j);
+                if (board[i][j] == ' ') {
+                    SetConsoleTextAttribute(hconsole, k);
+                    cout <<  k << " ";
+                } else {
+                    SetConsoleTextAttribute(hconsole, k);
+                    cout <<  board[i][j] << " ";
+                }
+
+            //cout << i << "," << j << " ";
+            }
+            cout << endl;
         }
-        cout << endl;
+
     }
 
-}
+    void placeTile(int row, int col, char letter)
+    {
+        board[row][col] = letter;
+    }
+    int getTileColorCode(int row, int col) {
 
-void placeTile(int row, int col, char letter)
-{
-board[row][col] = letter;
-}
+        // Add your custom logic to determine the place values for different positions
+        if ((row == 0 && col == 0)||(row == 0 && col == 7)||(row == 0 && col == 14)) {// double letter score
+            return 1; // Blue
+        } else if ((row == 7 && col == 0)||(row == 7 && col == 7)||(row == 7 && col == 14)) {
+            return 1; // Green
+        } else if ((row == 14 && col == 0)||(row == 14 && col == 7)||(row == 14 && col == 14)) {
+            return 1; // Yellow
+        } else if (5==6) {
+            return SetConsoleTextAttribute(hconsole, 1); // Red
+        } else {
+            return 7; // White
+        }
 
+    }
 };
 class bag
 {
@@ -81,6 +106,8 @@ class bag
 };
 
 int main() {
+
+
     Board scrabbleBoard;
 
     scrabbleBoard.placeTile(7, 7, 'S');
