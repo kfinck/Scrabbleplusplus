@@ -4,29 +4,16 @@
 #include <windows.h>
 #include <bits/stdc++.h>
 #include <algorithm>
-
+#include <ctime>
+#include <cstdlib>
 #include <utility>
-
+#include <map>
 
 using namespace std;
 
 
 
-class player
-{
-private:
-    string name;
-    int score;
-public:
-    char tiles[7];
 
-
-    void placeTiles()
-    {
-
-    }
-
-};
 
 class Tile
 {
@@ -122,19 +109,69 @@ public:
 };
 
 
-
-
-
-
+//added 4/23/2023
 class bag
 {
+private:
+    std::vector<char> tiles;
+public:
+    bag() {
+        map<char, int> tile_distribution = {
+                {'A', 9}, {'B', 2}, {'C', 2}, {'D', 4}, {'E', 12}, {'F', 2},
+                {'G', 3}, {'H', 2}, {'I', 9}, {'J', 1}, {'K', 1}, {'L', 4},
+                {'M', 2}, {'N', 6}, {'O', 8}, {'P', 2}, {'Q', 1}, {'R', 6},
+                {'S', 4}, {'T', 6}, {'U', 4}, {'V', 2}, {'W', 2}, {'X', 1},
+                {'Y', 2}, {'Z', 1}, {'_', 2}
+        };
+        for (auto &tile : tile_distribution) {
+            for (int i = 0; i < tile.second; ++i) {
+                tiles.push_back(tile.first);
+            }
+        }
 
+
+        srand(time(0));
+        random_shuffle(tiles.begin(), tiles.end());
+
+        char draw_tile() {
+            if (tiles.empty()) {
+                throw std::runtime_error("Tile bag is empty.");
+            }
+            char tile = tiles.back();
+            tiles.pop_back();
+            return tile;
+        }
+
+        bool is_empty() {
+            return tiles.empty();
+        }
+
+        int remaining_tiles() {
+            return tiles.size();
+        }
 };
 
+class player
+{
+private:
+    string name;
+    int score;
+public:
+    char tiles[7];
+
+
+    void placeTiles()
+    {
+
+    }
+
+};
 int main() {
 
+    ///start game loop
 
-    Board scrabbleBoard;
+    Board scrabbleBoard; /// initialize board
+    bag scrabbleBag;
 
     scrabbleBoard.placeTile(7, 7, 'S');
     scrabbleBoard.placeTile(7, 8, 'C');
