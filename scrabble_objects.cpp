@@ -256,7 +256,7 @@ public:
         }
 
 
-
+    //LOL
         //initialize game, each player gets 7 tiles
 
 
