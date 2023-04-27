@@ -173,40 +173,115 @@ public:
         }
 };
 
-class player
-{
+class player {
 private:
     string name;
     int score;
-    vector <char> rack;
+    vector<char> rack;
 public:
-    player()
-    {
-
+    player(const string &player_name) {
+        name = player_name;
+        score = 0;
     }
 
+    void add_tile(char tile) {
+        rack.push_back(tile);
+    }
+
+    const vector<char> &get_rack() const {
+        cout << this->name << "'s rack: ";
+        for (char tile: rack) {
+            std::cout << tile << "/";
+        }
+    }
+
+    void add_score(int points) {
+        score += points;
+    }
+
+    int get_score() {
+        cout << score << endl;
+    }
+
+    void get_name() {
+        cout << name << endl;
+    }
+    };
+
+    int main() {
+
+        ///start game loop
+        int number_of_players = 5;
+        while (number_of_players > 4 || number_of_players < 1) {
+            cout << " please enter a number of players between 1-4" << endl;
+            cin >> number_of_players;
+            if (number_of_players > 4) {
+                cout << "You cannot have more than four players" << endl;
+            }
+            if (number_of_players < 1) {
+                cout << "You cannot have less than one players" << endl;
+            }
+        }
+        vector<player> players;
+
+        for (int i = 0; i < number_of_players; i++) {
+            if (i == 0) {
+                string p1name;
+                cout << "Player one enter your name" << endl;
+                cin >> p1name;
+                player p1(p1name);
+                players.push_back(p1);
+            }
+            if (i == 1) {
+                string p2name;
+                cout << "Player two enter your name" << endl;
+                cin >> p2name;
+                player p2(p2name);
+                players.push_back(p2);
+            }
+            if (i == 2) {
+                string p3name;
+                cout << "Player three enter your name" << endl;
+                cin >> p3name;
+                player p3(p3name);
+                players.push_back(p3);
+            }
+            if (i == 3) {
+                string p4name;
+                cout << "Player four enter your name" << endl;
+                cin >> p4name;
+                player p4(p4name);
+                players.push_back(p4);
+            }
+        }
 
 
-    
 
-};
-int main() {
+        //initialize game, each player gets 7 tiles
 
-    ///start game loop
 
-    Board scrabbleBoard; /// initialize board
-    bag scrabbleBag;
 
-    scrabbleBoard.placeTile(7, 7, 'S');
-    scrabbleBoard.placeTile(7, 8, 'C');
-    scrabbleBoard.placeTile(7, 9, 'R');
-    scrabbleBoard.placeTile(7, 10, 'A');
-    scrabbleBoard.placeTile(7, 11, 'B');
-    scrabbleBoard.placeTile(7, 12, 'B');
-    scrabbleBoard.placeTile(7, 13, 'L');
-    scrabbleBoard.placeTile(7, 14, 'E');
 
-    scrabbleBoard.displayBoard();
+        Board scrabbleBoard; /// initialize board
+        bag scrabbleBag;
+        player Liam("Liam");
+        Liam.add_tile('A');
+        Liam.add_tile('B');
+        Liam.add_tile('C');
+        Liam.get_rack();
+        std::cout << std::endl;
 
-    return 0;
-}
+
+        scrabbleBoard.placeTile(7, 7, 'S');
+        scrabbleBoard.placeTile(7, 8, 'C');
+        scrabbleBoard.placeTile(7, 9, 'R');
+        scrabbleBoard.placeTile(7, 10, 'A');
+        scrabbleBoard.placeTile(7, 11, 'B');
+        scrabbleBoard.placeTile(7, 12, 'B');
+        scrabbleBoard.placeTile(7, 13, 'L');
+        scrabbleBoard.placeTile(7, 14, 'E');
+
+        scrabbleBoard.displayBoard();
+
+        return 0;
+    }
