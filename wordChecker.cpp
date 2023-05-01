@@ -64,11 +64,11 @@ void Trie::addFile(string file){
 bool Trie::contains(const string& w){
   Node* p;
   p = root;
-  int len = w.length();
+  //int len = w.length();
   int ic;
 
   for(char c : w){
-    ic = c - 'a';
+    ic = c - 'A';
     if (p->next[ic] != nullptr){
       p = p->next[ic];
     }
