@@ -13,6 +13,10 @@ int main(int argc, char* argv[]){
   string dPath = path + "ScrabbleDict.txt"; //add dictionary file name
   cout << dPath << endl;
   a.addFile(dPath);
+
+  bool s = a.contains("SCRABBLE");
+
+  cout << s << endl;
   
   
   cout << "Goodbye" << endl;

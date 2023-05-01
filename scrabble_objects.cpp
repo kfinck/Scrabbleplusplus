@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <utility>
 #include <map>
+#include "wordChecker.h"
 
 using namespace std;
 
@@ -39,6 +40,7 @@ private:
             {'O', 1}, {'P', 3}, {'Q', 10},{'R', 1}, {'S', 1}, {'T', 1}, {'U', 1},
             {'V', 4}, {'W', 4}, {'X', 8}, {'Y', 4}, {'Z', 10}, {'_', 0}
     };
+    Trie wordChecker;
 public:
     char letter;
     HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -52,6 +54,12 @@ public:
 
         initializeTiles();
     }
+
+    Board(string path){
+      wordChecker.addFile(path);
+      initializeTiles();
+    }
+
     void initializeTiles()
     {
         for (int i = 0; i < 15; i++)
@@ -121,6 +129,85 @@ public:
     {
         board[row][col].letter = letter;
 
+    }
+
+    bool CheckBoard(){
+      //iterates through board - checking if consecutive letters are words!!
+      //checks horizontally - then vertically
+      //floating letters not checked here - they will be checked when moves are made.
+      //cout << "at the beginning :))" << endl;
+      string word = "";
+      for(int i = 0; i < 15; i++){
+        for(int j = 0; j< 15; j++){
+          if(board[i][j].letter != ' '){ //check if spot has a tile on it
+            word.push_back(board[i][j].letter);
+            if(j == 14 && word.length() > 1){ //word goes to end of row/column
+               
+              bool result = wordChecker.contains(word);
+              if(result){
+                cout << word << " is a word!" << endl;
+                word = ""; //remove valid word
+              }
+              else{
+                cout << word << " is NOT a word!" << endl;
+                return false; //invalid word found -- STOP
+              }
+            }
+          }
+          else if(word.length() > 1){ //Word ended and is more than 1 letter - check
+            //cout << word << endl; 
+            bool result = wordChecker.contains(word);
+            if(result){
+              cout << word << " is a word!" << endl;
+              word = ""; //remove valid word
+            }
+            else{
+              cout << word << " is NOT a word!" << endl;
+              return false; //invalid word found -- STOP
+            }
+          }
+          else{ //word is just one letter
+            word = ""; //single letter - ignore (for now)
+          }
+        }
+      }
+      //column by column
+      word = "";
+      for(int i = 0; i < 15; i++){
+        for(int j = 0; j< 15; j++){
+          if(board[j][i].letter != ' '){ //check if spot has a tile on it
+            word.push_back(board[j][i].letter);
+            if(i == 14 && word.length() > 1){ //word goes to end of row/column
+              //cout << word << endl; 
+              bool result = wordChecker.contains(word);
+              if(result){
+                cout << word << " is a word!" << endl;
+                word = ""; //remove valid word
+              }
+              else{
+                cout << word << " is NOT a word!" << endl;
+                return false; //invalid word found -- STOP
+              }
+            }
+          }else if(word.length() > 1){ //Word ended and is more than 1 letter - check
+            cout << word << endl;
+            bool result = wordChecker.contains(word);
+            if(result){
+              cout << word << " is a word!" << endl;
+              word = ""; //remove valid word
+            }
+            else{
+              cout << word << " is NOT a word!" << endl;
+              return false; //invalid word found -- STOP
+            }
+          }
+          else{
+            word = ""; //single letter - ignore (for now)
+          }
+        }
+      }
+      //cout << "at the end :))" << endl;
+      return true; //made it to end -- all good
     }
 
 };
@@ -244,8 +331,12 @@ public:
     }
 };
 
-int main() {
-    Board scrabbleBoard; /// initialize board
+int main(int argc, char* argv[]) {
+    string path = argv[0];
+    path.resize(path.length() - 12); //remove exe name from path -- this will have to be changed based on name of executable hehe
+    string dPath = path + "ScrabbleDict.txt"; //add dictionary file name
+    cout << dPath << endl;
+    Board scrabbleBoard(dPath); /// initialize board
     bag scrabbleBag;
     ///start game loop
     int number_of_players = 5;
@@ -304,6 +395,8 @@ int main() {
     scrabbleBoard.placeTile(7, 14, 'E');
 
     scrabbleBoard.displayBoard();
+
+    cout << scrabbleBoard.CheckBoard() << endl;
 
     scrabbleBag.end_tiles();
     Liam.get_rack();
