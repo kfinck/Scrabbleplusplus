@@ -9,6 +9,7 @@
 #include <utility>
 #include <map>
 #include "wordChecker.h"
+#include <sstream>
 
 using namespace std;
 
@@ -310,7 +311,16 @@ public:
         rack.push_back(tile);
     }
 
-    void get_rack() const {
+    bool has_tile(char c){
+      if (find(rack.begin(), rack.end(), c) != rack.end()) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+
+    void print_rack() const {
         cout << this->name << "'s rack: ";
         for (char tile : rack) {
             std::cout << tile << "/";
@@ -322,13 +332,123 @@ public:
         score += points;
     }
 
-    void get_score() {
+    void print_score() {
         cout << score << endl;
     }
 
-    void get_name() {
+    void print_name() {
         cout << name << endl;
     }
+
+    vector<char> get_rack() const {
+        return rack;
+    }
+
+
+    int get_score() {
+        return score;
+    }
+
+    string get_name() {
+        return name;
+    }
+};
+
+
+class Game{
+  private:
+    vector<player> players;
+    int num_players;
+    Board board;
+    bag scrabbleBag;
+    int turnLimit;
+  public:
+  Game(vector<player> players_list, int num, Board b,bag sb, int turns){
+    players = players_list;
+    num_players = num;
+    board = b;
+    scrabbleBag = sb;
+    turnLimit = turns;
+    Game_loop(0,0);
+  }
+
+  void Game_loop(int player_num,int turn){
+    player current = players[player_num]; //get current player
+    cout << current.get_name() << "'s turn!" <<  endl;
+    cout << "Score: " << current.get_score() << endl;
+    current.print_rack();
+    Board tempBoard = board; //allows us to attempt moves without editing the real board
+    while(true){ //player turn runs untill they end their turn - either drawing or making a move
+      tempBoard.displayBoard();
+      cout << "Draw - /draw" << endl;
+      cout << "to place a tile - /place (x) (y) (letter)" << endl;
+      cout << "to undo - /undo" << endl;
+      cout << "to confirm moves & end turn - /end" << endl;
+      string input;
+      getline(cin,input); //idk why this works better than cin >> lmao
+      if(input.find("/draw") != string::npos){ //draws tile then ends turn -- need to add case when bag is empty?
+        current.add_tile(scrabbleBag);
+        break;
+      }
+      else if(input.find("/place") != string::npos){ //place tiles one by one
+        istringstream ss(input); //get args
+        string x_s, y_s, c_s;
+        getline(ss, x_s, ' ');
+        getline(ss, x_s, ' ');
+        getline(ss, y_s, ' ');
+        getline(ss, c_s, ' ');
+        cout << x_s << y_s << c_s << endl;
+        int x = stoi(x_s);
+        int y = stoi(y_s);
+        char c = c_s[0];
+        tempBoard.placeTile(x,y,c);
+      }
+      else if(input.find("/undo") != string::npos){ //undo all tiles placed this turn;
+        tempBoard = board; //revert to original board
+      }
+      else if(input.find("/end") != string::npos){ //check if placed tiles are valid
+        //still need to check if tiles being played are in the player's rack & removing them from the rack once played
+        //also must calculate score of turn
+        if(tempBoard.CheckBoard()){ 
+          board = tempBoard;
+          cout << "Good move!" << endl;
+          break;
+        }
+        else{
+          tempBoard = board;
+          cout << "Invalid move!" << endl;
+        }
+      }
+      else{
+        cout << "please enter a valid input" << endl;
+      }
+
+    }
+    if(player_num == num_players - 1){ //either end game, go to next player, or loop back to first player
+      if(turn == turnLimit){
+        endGame();
+      }
+      else{
+        Game_loop(0,turn+1);
+      }
+    }
+    else{
+      Game_loop(player_num+1,turn);
+    }
+  }
+
+  void endGame(){
+    player winner = players[0];
+    cout << "GAME OVER" << endl;
+    for(int i = 0; i < num_players; i++){ //print players and find winner - need edge case for ties
+      cout << players[i].get_name() << " : " << players[i].get_score() << endl; 
+      if(players[i].get_score() > winner.get_score()){
+        winner = players[i];
+      }
+    }
+    cout << winner.get_name() << " wins!!!" << endl;
+  }
+
 };
 
 int main(int argc, char* argv[]) {
@@ -353,6 +473,8 @@ int main(int argc, char* argv[]) {
     vector<player> players;
 
     for (int i = 0; i < number_of_players; i++) {
+
+
         if (i == 0) {
             string p1name;
             cout << "Player one enter your name" << endl;
@@ -382,6 +504,8 @@ int main(int argc, char* argv[]) {
             players.push_back(p4);
         }
     }
+
+    Game g(players,number_of_players,scrabbleBoard,scrabbleBag, 5);
 
     player Liam("Liam", scrabbleBag);
 
