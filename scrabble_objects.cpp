@@ -191,9 +191,9 @@ public:
           }
           else{
             wordScore += letter_values[board[i][j].letter];
-            //cout << "letter: " << letter << " value "
+            
           }
-
+          cout << "letter: " << board[i][j].letter << " score " << wordScore << endl;
 
           if (j == 14 && word.length() > 1) { //word goes to end of row/column
 
@@ -255,7 +255,7 @@ public:
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
-
+          wordScore = 0;
 
           doubled = 0;
           tripled = 0;
@@ -265,6 +265,7 @@ public:
     }
     //column by column
     word = "";
+    wordScore = 0;
     for (int i = 0; i < 15; i++) {
       for (int j = 0; j < 15; j++) {
         if (board[j][i].letter != ' ') { //check if spot has a tile on it
@@ -291,7 +292,9 @@ public:
           }
           else{
             wordScore += letter_values[board[j][i].letter];
+
           }
+          cout << "letter: " << board[j][i].letter << " score " << wordScore << endl;
           if (i == 14 && word.length() > 1) { //word goes to end of row/column
 
             bool result = wordChecker.contains(word);
@@ -336,6 +339,7 @@ public:
                 wordScore = wordScore * 3;
               }
               score += wordScore;
+              cout << "Total score: " << score << endl;
             }
               word = ""; //remove valid word
               wordScore = 0;
@@ -349,6 +353,7 @@ public:
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
+          wordScore = 0;
           doubled = 0;
           tripled = 0;
 
@@ -357,7 +362,7 @@ public:
       }
     }
     //cout << "at the end :))" << endl;
-
+    cout << "Score::: " << score << endl;
     return score; //made it to end -- all good
 
   }
@@ -372,7 +377,7 @@ public:
       for (const auto& p : coords) {
 
 
-        //cout << p.first << ": " << p.second << endl;
+        cout << p.first << ": " << p.second << endl;
 
 
         if (p.first == 0 && p.second == 0) { //top left (0,0)
@@ -455,6 +460,7 @@ public:
           }
         }
         else { //middle tiles
+          cout << "Middle Tile" << endl;
           if (board[p.first + 1][p.second].letter != ' ') {
             return true;
           }
@@ -469,6 +475,7 @@ public:
           }
         }
       }
+      cout << "checkmove() returning false" << endl;
       return false;
     }
     else { //first move - must go thru middle
@@ -796,7 +803,7 @@ public:
             getline(ss, x_s, ' ');
             getline(ss, y_s, ' ');
             getline(ss, c_s, ' ');
-            cout << x_s << y_s << c_s << endl;
+            //cout << x_s << y_s << c_s << endl;
             int x = stoi(x_s);
             int y = stoi(y_s);
             char c = c_s[0];
@@ -809,25 +816,26 @@ public:
                 char blank;
                 cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
                 cin >> blank;
-                tempBoard.placeTile(x, y, blank);
+                tempBoard.placeTile(y, x, blank);
               }
               else {
-                tempBoard.placeTile(x, y, c);
+                tempBoard.placeTile(y, x, c);
               }
-              coords.emplace_back(x, y);
+              coords.emplace_back(y,x);
             }
             else {
               cout << "Only use tiles from your rack!!" << endl;
             }
 
           }
+          
           catch (const invalid_argument& e) {
-            cout << "Invalid input: " << "Please check your formatting and try again." << endl;
+            //cout << "Invalid input: " << "Please check your formatting and try again." << endl;
             out = true;
 
           }
           catch (const exception& e) {
-            cout << "Error: " << e.what() << ". Please try again." << endl;
+            //cout << "Error: " << e.what() << ". Please try again." << endl;
             out = true;
 
           }
