@@ -123,8 +123,18 @@ public:
       score += letter_values[word[i]] * letter_multipliers[i];
     }
 
-    return score * word_multiplier;
-  }
+
+    bool placeTile(int row, int col, char letter)
+    {
+      if(board[row][col].letter == ' '){
+        board[row][col].letter = letter;
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+
 
   void placeTile(int row, int col, char letter)
   {
@@ -144,6 +154,40 @@ public:
           word.push_back(board[i][j].letter);
           if (j == 14 && word.length() > 1) { //word goes to end of row/column
 
+
+    bool CheckBoard(){
+      //iterates through board - checking if consecutive letters are words!!
+      //checks horizontally - then vertically
+      //floating letters not checked here - they will be checked when moves are made.
+      //cout << "at the beginning :))" << endl;
+      string word = "";
+      for(int i = 0; i < 15; i++){
+        for(int j = 0; j< 15; j++){
+          if(board[i][j].letter != ' '){ //check if spot has a tile on it
+            word.push_back(board[i][j].letter);
+            if(j == 14 && word.length() > 1){ //word goes to end of row/column
+               
+              bool result = wordChecker.contains(word);
+              if(result){
+                //cout << word << " is a word!" << endl;
+                word = ""; //remove valid word
+              }
+              else{
+                //cout << word << " is NOT a word!" << endl;
+                return false; //invalid word found -- STOP
+              }
+            }
+          }
+          else if(word.length() > 1){ //Word ended and is more than 1 letter - check
+            //cout << word << endl; 
+            bool result = wordChecker.contains(word);
+            if(result){
+              //cout << word << " is a word!" << endl;
+              word = ""; //remove valid word
+            }
+            else{
+              //cout << word << " is NOT a word!" << endl;
+
             bool result = wordChecker.contains(word);
             if (result) {
               cout << word << " is a word!" << endl;
@@ -151,6 +195,7 @@ public:
             }
             else {
               cout << word << " is NOT a word!" << endl;
+
               return false; //invalid word found -- STOP
             }
           }
@@ -171,6 +216,35 @@ public:
           word = ""; //single letter - ignore (for now)
         }
       }
+
+      //column by column
+      word = "";
+      for(int i = 0; i < 15; i++){
+        for(int j = 0; j< 15; j++){
+          if(board[j][i].letter != ' '){ //check if spot has a tile on it
+            word.push_back(board[j][i].letter);
+            if(i == 14 && word.length() > 1){ //word goes to end of row/column
+              //cout << word << endl; 
+              bool result = wordChecker.contains(word);
+              if(result){
+                cout << word << " is a word!" << endl;
+                word = ""; //remove valid word
+              }
+              else{
+                cout << word << " is NOT a word!" << endl;
+                return false; //invalid word found -- STOP
+              }
+            }
+          }else if(word.length() > 1){ //Word ended and is more than 1 letter - check
+            //cout << word << endl;
+            bool result = wordChecker.contains(word);
+            if(result){
+              //cout << word << " is a word!" << endl;
+              word = ""; //remove valid word
+            }
+            else{
+              //cout << word << " is NOT a word!" << endl;
+
     }
     //column by column
     word = "";
@@ -219,9 +293,15 @@ public:
     pair<int, int> center = { 7,7 };
     if (firstMove) { //after first move - must be connected 
       for (const auto& p : coords) {
+
+        //cout << p.first << ": " << p.second << endl;
+        if( p.first == 0 && p.second == 0){ //top left (0,0)
+          if(board[p.first+1][p.second].letter != ' '){
+
         cout << p.first << ": " << p.second << endl;
         if (p.first == 0 && p.second == 0) { //top left (0,0)
           if (board[p.first + 1][p.second].letter != ' ') {
+
             return true;
           }
 
@@ -523,7 +603,6 @@ public:
         std::cout << tile << "/";
       }
       cout << "\n";
-      cout << "Draw - /draw" << endl;
 
       cout << "exchange - /exchange (number of letters to replace)" << endl; //LJ
 
@@ -593,9 +672,16 @@ public:
         auto it = find(tempRack.begin(), tempRack.end(), c);
         if (it != tempRack.end()) {
           //delete tile from temporary rack
+
+          if(tempBoard.placeTile(y,x,c)){
+            tempRack.erase(it);
+            coords.emplace_back(x,y);
+          }
+
           tempRack.erase(it);
           tempBoard.placeTile(x, y, c);
           coords.emplace_back(x, y);
+
         }
         else {
           cout << "Only use tiles from your rack!!" << endl;
