@@ -11,4 +11,4 @@ wordChecker.o: wordChecker.cpp
 	$(CC) $(CFLAGS) -c wordChecker.cpp
 
 clean:
-	rm -f *.o wordChecker
+	rm -f *.o scrabble
