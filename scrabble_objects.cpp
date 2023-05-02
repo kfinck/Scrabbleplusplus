@@ -260,6 +260,7 @@ public:
         srand(time(0));
         random_shuffle(tiles.begin(), tiles.end());
     }
+
     char draw_tile() {
         if (tiles.empty()) {
             throw runtime_error("Tile bag is empty.");
@@ -267,6 +268,10 @@ public:
         char tile = tiles.back();
         tiles.pop_back();
         return tile;
+    }
+    void return_tile(char tile)
+    {
+      tiles.push_back(tile);
     }
 
     bool is_empty() {
@@ -284,7 +289,10 @@ public:
         }
         cout << "\n";
     }
-
+  void shuffle_bag() {
+        srand(time(0));
+        random_shuffle(tiles.begin(), tiles.end());
+    }
 };
 
 class player {
@@ -380,16 +388,48 @@ class Game{
     Board tempBoard = board; //allows us to attempt moves without editing the real board
     while(true){ //player turn runs untill they end their turn - either drawing or making a move
       tempBoard.displayBoard();
-      cout << "Draw - /draw" << endl;
+      cout << "exchange - /exchange (number of letters to replace)" << endl; //LJ
       cout << "to place a tile - /place (x) (y) (letter)" << endl;
       cout << "to undo - /undo" << endl;
       cout << "to confirm moves & end turn - /end" << endl;
       string input;
       getline(cin,input); //idk why this works better than cin >> lmao
-      if(input.find("/draw") != string::npos){ //draws tile then ends turn -- need to add case when bag is empty?
-        current.add_tile(scrabbleBag);
+      if(input.find("/exchange") != string::npos){ //draws tile then ends turn -- need to add case when bag is empty?
+        istringstream ss(input); //get args
+        string input;
+        getline(ss, input, ' ');
+        getline(ss, input, ' ');// this line overwrites "input" from "/exchange" to the "number of letters to replace"
+        int input = stoi(intput);
+        <vector> char discardedTiles;
+        for(int i = 0;i < input; i++)
+        {
+          string c;
+          cout << "Input letter to discard" << endl;
+          getline(cin, c);
+          if (find(tempRack.begin(), tempRack.end(), c) != tempRack.end()) {
+          //delete tile from temporary rack
+          auto it = find(tempRack.begin(), tempRack.end(), c[0]);
+        if (it != tempRack.end()) {
+            discardedTiles.push_back(c[0]);
+            tempRack.erase(it);
+        }
+
+    }
+        }
+        for(int i = 0; i < input; i++)
+        {
+          current.add_tile(scrabbleBag);
+        }
+        for(int i = 0; i < discardedTiles.size(); i++)
+        {
+          scrabbleBag.return_tile(discardedTiles[i]);
+          
+        }
+        discardedTiles.clear();
+        scrabbleBag.shuffle_bag();
+        //LJ
         break;
-      }
+      
       else if(input.find("/place") != string::npos){ //place tiles one by one
         istringstream ss(input); //get args
         string x_s, y_s, c_s;
