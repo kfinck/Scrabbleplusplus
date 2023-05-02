@@ -755,7 +755,7 @@ public:
         getline(ss, x_s, ' ');
         getline(ss, y_s, ' ');
         getline(ss, c_s, ' ');
-        cout << x_s << y_s << c_s << endl;
+        //cout << x_s << y_s << c_s << endl;
         int x = stoi(x_s);
         int y = stoi(y_s);
         char c = c_s[0];
@@ -838,11 +838,9 @@ public:
       Game_loop(0);
     }
     else{ //go to next player's turn
-      Game_loop(player_num = 1); 
+      Game_loop(player_num + 1); 
 
     }
-    else
-      return false;
   }
 
 
@@ -934,7 +932,7 @@ int main(int argc, char* argv[]) {
   }
 
   Game g(players, number_of_players, scrabbleBoard, scrabbleBag, 5);
-
+  /*
   player Liam("Liam", scrabbleBag);
 
   scrabbleBoard.placeTile(7, 7, 'S');
@@ -955,6 +953,7 @@ int main(int argc, char* argv[]) {
   scrabbleBag.end_tiles();
 
   std::cout << std::endl;
+  */
 
   return 0;
 
