@@ -12,12 +12,7 @@
 #include <map>
 #include "wordChecker.h"
 #include <sstream>
-
 using namespace std;
-
-
-
-
 
 class Tile
 {
@@ -28,9 +23,6 @@ public:
   int value;
 
 };
-
-
-
 
 class Board : public Tile
 {
@@ -66,7 +58,11 @@ public:
     wordChecker.addFile(path);
     initializeTiles();
   }
+  int getLetterValue(char c)
+  {
 
+    return letter_values[c];
+  }
   void initializeTiles()
   {
     for (int i = 0; i < 15; i++)
@@ -76,23 +72,23 @@ public:
 
 
         {
-          board[i][j].value = 1;
+          board[i][j].value = 9;
           board[i][j].letter = ' ';
         }
         else if (find(tripleLetterScore.begin(), tripleLetterScore.end(), make_pair(i, j)) != tripleLetterScore.end())
         {
 
-          board[i][j].value = 2;
+          board[i][j].value = 6;
           board[i][j].letter = ' ';
         }
         else if (find(doubleWordScore.begin(), doubleWordScore.end(), make_pair(i, j)) != doubleWordScore.end())
         {
-          board[i][j].value = 3;
+          board[i][j].value = 10;
           board[i][j].letter = ' ';
         }
         else if (find(tripleWordScore.begin(), tripleWordScore.end(), make_pair(i, j)) != tripleWordScore.end())
         {
-          board[i][j].value = 4;
+          board[i][j].value = 12;
           board[i][j].letter = ' ';
         }
         else {
@@ -141,11 +137,11 @@ public:
 
   bool placeTile(int row, int col, char letter)
   {
-    if(board[row][col].letter == ' '){
+    if (board[row][col].letter == ' ') {
       board[row][col].letter = letter;
       return true;
     }
-    else{
+    else {
       return false;
     }
 
@@ -171,42 +167,42 @@ public:
         if (board[i][j].letter != ' ') { //check if spot has a tile on it
           word.push_back(board[i][j].letter);
 
-          pair<int,int> square = {i,j};
+          pair<int, int> square = { i,j };
           //check for tile multiplier
-          if(find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()){ //double letter
+          if (find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()) { //double letter
             wordScore += letter_values[board[i][j].letter] * 2;
           }
-          else if(find(tripleLetterScore.begin(), tripleLetterScore.end(), square) != tripleLetterScore.end()){ //triple letter
+          else if (find(tripleLetterScore.begin(), tripleLetterScore.end(), square) != tripleLetterScore.end()) { //triple letter
             wordScore += letter_values[board[i][j].letter] * 3;
           }
 
-          else if(find(doubleWordScore.begin(), doubleWordScore.end(), square) != doubleWordScore.end()){ //double word
+          else if (find(doubleWordScore.begin(), doubleWordScore.end(), square) != doubleWordScore.end()) { //double word
             wordScore += letter_values[board[i][j].letter];
             doubled++;
           }
 
-          else if(find(tripleWordScore.begin(), tripleWordScore.end(), square) != tripleWordScore.end()){ //triple word
+          else if (find(tripleWordScore.begin(), tripleWordScore.end(), square) != tripleWordScore.end()) { //triple word
             wordScore += letter_values[board[i][j].letter];
             tripled++;
           }
-          else{
+          else {
             wordScore += letter_values[board[i][j].letter];
-            
+            //cout << "letter: " << letter << " value "
           }
-          cout << "letter: " << board[i][j].letter << " score " << wordScore << endl;
+
 
           if (j == 14 && word.length() > 1) { //word goes to end of row/column
 
             bool result = wordChecker.contains(word);
             if (result) {
 
-              if(find(words.begin(), words.end(), word) == words.end()){ //if word is new
+              if (find(words.begin(), words.end(), word) == words.end()) { //if word is new
                 cout << word << " is a word!" << endl;
                 words.push_back(word);
-                for(int i = 0; i < doubled;i++){
+                for (int i = 0; i < doubled;i++) {
                   wordScore = wordScore * 2;
                 }
-                for(int j = 0; j < tripled;j++){
+                for (int j = 0; j < tripled;j++) {
                   wordScore = wordScore * 3;
                 }
                 score += wordScore; //only added to score if the word is new
@@ -227,13 +223,13 @@ public:
           bool result = wordChecker.contains(word);
           if (result) {
             //cout << word << " valid score: " << wordScore << endl;
-            if(find(words.begin(), words.end(), word) == words.end()){
+            if (find(words.begin(), words.end(), word) == words.end()) {
               cout << word << " is a word!" << endl;
               words.push_back(word);
-              for(int i = 0; i < doubled;i++){
+              for (int i = 0; i < doubled;i++) {
                 wordScore = wordScore * 2;
               }
-              for(int j = 0; j < tripled;j++){
+              for (int j = 0; j < tripled;j++) {
                 wordScore = wordScore * 3;
               }
               score += wordScore;
@@ -255,7 +251,7 @@ public:
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
-          wordScore = 0;
+
 
           doubled = 0;
           tripled = 0;
@@ -265,47 +261,44 @@ public:
     }
     //column by column
     word = "";
-    wordScore = 0;
     for (int i = 0; i < 15; i++) {
       for (int j = 0; j < 15; j++) {
         if (board[j][i].letter != ' ') { //check if spot has a tile on it
           word.push_back(board[j][i].letter);
 
 
-          pair<int,int> square = {j,i};
+          pair<int, int> square = { j,i };
           //check for tile multiplier
-          if(find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()){ //double letter
+          if (find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()) { //double letter
             wordScore += letter_values[board[j][i].letter] * 2;
           }
-          else if(find(tripleLetterScore.begin(), tripleLetterScore.end(), square) != tripleLetterScore.end()){ //triple letter
+          else if (find(tripleLetterScore.begin(), tripleLetterScore.end(), square) != tripleLetterScore.end()) { //triple letter
             wordScore += letter_values[board[j][i].letter] * 3;
           }
 
-          else if(find(doubleWordScore.begin(), doubleWordScore.end(), square) != doubleWordScore.end()){ //double word
+          else if (find(doubleWordScore.begin(), doubleWordScore.end(), square) != doubleWordScore.end()) { //double word
             wordScore += letter_values[board[j][i].letter];
             doubled = true;
           }
 
-          else if(find(tripleWordScore.begin(), tripleWordScore.end(), square) != tripleWordScore.end()){ //triple word
+          else if (find(tripleWordScore.begin(), tripleWordScore.end(), square) != tripleWordScore.end()) { //triple word
             wordScore += letter_values[board[j][i].letter];
             tripled = true;
           }
-          else{
+          else {
             wordScore += letter_values[board[j][i].letter];
-
           }
-          cout << "letter: " << board[j][i].letter << " score " << wordScore << endl;
           if (i == 14 && word.length() > 1) { //word goes to end of row/column
 
             bool result = wordChecker.contains(word);
             if (result) {
-              if(find(words.begin(), words.end(), word) == words.end()){ //if word is new
+              if (find(words.begin(), words.end(), word) == words.end()) { //if word is new
                 cout << word << " is a word!" << endl;
                 words.push_back(word);
-                for(int i = 0; i < doubled;i++){
+                for (int i = 0; i < doubled;i++) {
                   wordScore = wordScore * 2;
                 }
-                for(int j = 0; j < tripled;j++){
+                for (int j = 0; j < tripled;j++) {
                   wordScore = wordScore * 3;
                 }
                 score += wordScore; //only added to score if the word is new
@@ -329,22 +322,21 @@ public:
           //cout << word << endl; 
           bool result = wordChecker.contains(word);
           if (result) {
-            if(find(words.begin(), words.end(), word) == words.end()){
+            if (find(words.begin(), words.end(), word) == words.end()) {
               cout << word << " is a word!" << endl;
               words.push_back(word);
-              for(int i = 0; i < doubled;i++){
+              for (int i = 0; i < doubled;i++) {
                 wordScore = wordScore * 2;
               }
-              for(int j = 0; j < tripled;j++){
+              for (int j = 0; j < tripled;j++) {
                 wordScore = wordScore * 3;
               }
               score += wordScore;
-              cout << "Total score: " << score << endl;
             }
-              word = ""; //remove valid word
-              wordScore = 0;
-              doubled = 0;
-              tripled = 0;
+            word = ""; //remove valid word
+            wordScore = 0;
+            doubled = 0;
+            tripled = 0;
           }
           else {
             cout << word << " is NOT a word!" << endl;
@@ -353,7 +345,6 @@ public:
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
-          wordScore = 0;
           doubled = 0;
           tripled = 0;
 
@@ -362,7 +353,7 @@ public:
       }
     }
     //cout << "at the end :))" << endl;
-    cout << "Score::: " << score << endl;
+
     return score; //made it to end -- all good
 
   }
@@ -377,7 +368,7 @@ public:
       for (const auto& p : coords) {
 
 
-        cout << p.first << ": " << p.second << endl;
+        //cout << p.first << ": " << p.second << endl;
 
 
         if (p.first == 0 && p.second == 0) { //top left (0,0)
@@ -460,7 +451,6 @@ public:
           }
         }
         else { //middle tiles
-          cout << "Middle Tile" << endl;
           if (board[p.first + 1][p.second].letter != ' ') {
             return true;
           }
@@ -475,7 +465,6 @@ public:
           }
         }
       }
-      cout << "checkmove() returning false" << endl;
       return false;
     }
     else { //first move - must go thru middle
@@ -490,7 +479,7 @@ public:
     }
   }
 
-  
+
 
 };
 
@@ -696,21 +685,31 @@ public:
 
     vector<pair<int, int>> coords;
     while (true) { //player turn runs untill they end their turn - either drawing or making a move
+      HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
       tempBoard.displayBoard();
-
+      SetConsoleTextAttribute(hConsole, 15);
       cout << current.get_name() << "'s rack: ";
       for (char tile : tempRack) {
-        std::cout << tile << "/";
+        int tileValue = tempBoard.getLetterValue(tile);
+        std::cout << tile << ":" << tileValue << "/";
       }
       cout << "\n";
-      //cout << "Draw - /draw" << endl;
 
+      SetConsoleTextAttribute(hConsole, 9);
+      cout << "double letter score ";
+      SetConsoleTextAttribute(hConsole, 6);
+      cout << "triple letter score ";
+      SetConsoleTextAttribute(hConsole, 10);
+      cout << "double word score ";
+      SetConsoleTextAttribute(hConsole, 12);
+      cout << "triple word score " << endl;;
+      SetConsoleTextAttribute(hConsole, 15);
       cout << "exchange - /exchange (number of letters to replace)" << endl; //LJ
-
       cout << "to place a tile - /place (x) (y) (letter)" << endl;
       cout << "to undo - /undo" << endl;
       cout << "to confirm moves & end turn - /end" << endl;
       cout << "to pass - /pass" << endl;
+
       //cout << "this code work" << endl;
       string input;
       getline(cin, input); //idk why this works better than cin >> lmao
@@ -803,7 +802,7 @@ public:
             getline(ss, x_s, ' ');
             getline(ss, y_s, ' ');
             getline(ss, c_s, ' ');
-            //cout << x_s << y_s << c_s << endl;
+            cout << x_s << y_s << c_s << endl;
             int x = stoi(x_s);
             int y = stoi(y_s);
             char c = c_s[0];
@@ -816,26 +815,25 @@ public:
                 char blank;
                 cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
                 cin >> blank;
-                tempBoard.placeTile(y, x, blank);
+                tempBoard.placeTile(x, y, blank);
               }
               else {
-                tempBoard.placeTile(y, x, c);
+                tempBoard.placeTile(x, y, c);
               }
-              coords.emplace_back(y,x);
+              coords.emplace_back(x, y);
             }
             else {
               cout << "Only use tiles from your rack!!" << endl;
             }
 
           }
-          
           catch (const invalid_argument& e) {
-            //cout << "Invalid input: " << "Please check your formatting and try again." << endl;
+            cout << "Invalid input: " << "Please check your formatting and try again." << endl;
             out = true;
 
           }
           catch (const exception& e) {
-            //cout << "Error: " << e.what() << ". Please try again." << endl;
+            cout << "Error: " << e.what() << ". Please try again." << endl;
             out = true;
 
           }
@@ -887,14 +885,14 @@ public:
 
     }
 
-    if(noMoves()){ //if end game conditions are met
+    if (noMoves()) { //if end game conditions are met
       endGame();
     }
-    else if(player_num == num_players - 1){ //last player turn ended - go to first
+    else if (player_num == num_players - 1) { //last player turn ended - go to first
       Game_loop(0);
     }
-    else{ //go to next player's turn
-      Game_loop(player_num + 1); 
+    else { //go to next player's turn
+      Game_loop(player_num + 1);
 
     }
   }
