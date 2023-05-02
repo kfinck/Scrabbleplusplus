@@ -1,3 +1,5 @@
+
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -30,7 +32,7 @@ public:
 
 
 
-class Board: public Tile
+class Board : public Tile
 {
 private:
   int placeValue;
@@ -126,9 +128,15 @@ public:
     return score * word_multiplier;
   }
 
-  void placeTile(int row, int col, char letter)
+  bool placeTile(int row, int col, char letter)
   {
-    board[row][col].letter = letter;
+    if(board[row][col].letter == ' '){
+      board[row][col].letter = letter;
+      return true;
+    }
+    else{
+      return false;
+    }
 
   }
 
@@ -481,6 +489,11 @@ public:
   void set_rack(vector<char> newRack) {
     rack = newRack;
   }
+
+  int rack_size() {
+    int n = rack.size();
+    return n;
+  }
 };
 
 
@@ -501,13 +514,13 @@ public:
     scrabbleBag = sb;
     turnLimit = turns;
     pass = 0;
-    Game_loop(0, 0);
+    Game_loop(0);
   }
 
 
 
-  void Game_loop(int player_num, int turn) {
-    player current = players[player_num]; //get current player
+  void Game_loop(int player_num) {
+    player& current = players[player_num]; //get current player
     cout << current.get_name() << "'s turn!" << endl;
     cout << "Score: " << current.get_score() << endl;
     //current.print_rack();
@@ -531,10 +544,16 @@ public:
       cout << "to undo - /undo" << endl;
       cout << "to confirm moves & end turn - /end" << endl;
       cout << "to pass - /pass" << endl;
+      cout << "this code work" << endl;
       string input;
       getline(cin, input); //idk why this works better than cin >> lmao
 
       if (input.find("/exchange") != string::npos) { //draws tile then ends turn -- need to add case when bag is empty?
+        if (scrabbleBag.remaining_tiles() < 7) {
+          cout << "Not enough tiles in bag" << endl;
+        }
+
+        pass = 0;
         istringstream ss(input); //get args
         string input;
         getline(ss, input, ' ');
@@ -555,14 +574,28 @@ public:
           if (it != tempRack.end()) {
             //delete tile from temporary rack
 
-            if (it != tempRack.end()) {
-              discardedTiles.push_back(c);
-              tempRack.erase(it);
-            }
+            discardedTiles.push_back(c);
+            tempRack.erase(it);
 
           }
 
         }
+        cout << "BEFORE" << endl;
+        for (char tile : tempRack) {
+          std::cout << tile << "/";
+        }
+        current.print_rack();
+
+
+        current.set_rack(tempRack);
+
+
+        cout << "AFTER" << endl;
+        for (char tile : tempRack) {
+          std::cout << tile << "/";
+        }
+        current.print_rack();
+
 
         for (int i = 0; i < intput; i++)
         {
@@ -593,9 +626,23 @@ public:
         auto it = find(tempRack.begin(), tempRack.end(), c);
         if (it != tempRack.end()) {
           //delete tile from temporary rack
-          tempRack.erase(it);
-          tempBoard.placeTile(x, y, c);
-          coords.emplace_back(x, y);
+          
+          bool empty = false;
+          if (c == '_')
+          {
+            char blank;
+            cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
+            cin >> blank;
+            empty = tempBoard.placeTile(x, y, blank);
+
+          }
+          else {
+            empty = tempBoard.placeTile(x, y, c);
+          }
+          if(empty){
+            coords.emplace_back(x, y);
+            tempRack.erase(it);
+          }
         }
         else {
           cout << "Only use tiles from your rack!!" << endl;
@@ -616,6 +663,9 @@ public:
           cout << "Good move!" << endl;
           current.set_rack(tempRack);
           firstMove = true;
+          while (current.rack_size() < 7) {
+            current.add_tile(scrabbleBag);
+          }
           break;
         }
         else {
@@ -635,16 +685,14 @@ public:
       }
 
     }
-    if (player_num == num_players - 1) { //either end game, go to next player, or loop back to first player
-      if (turn == turnLimit) {
-        endGame();
-      }
-      else {
-        Game_loop(0, turn + 1);
-      }
+    if(noMoves()){ //if end game conditions are met
+      endGame();
     }
-    else {
-      Game_loop(player_num + 1, turn);
+    else if(player_num == num_players - 1){ //last player turn ended - go to first
+      Game_loop(0);
+    }
+    else{ //go to next player's turn
+      Game_loop(player_num = 1); 
     }
   }
 
