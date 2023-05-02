@@ -211,6 +211,122 @@ public:
       return true; //made it to end -- all good
     }
 
+    bool checkMove(vector<pair<int, int>> coords, bool firstMove){
+    //must check if move is valid
+    //first move must go thru center square
+    //other moves must connect to another word
+    pair<int,int> center = {7,7};
+    if(firstMove){ //after first move - must be connected 
+      for (const auto& p : coords) {
+        cout << p.first << ": " << p.second << endl;
+        if( p.first == 0 && p.second == 0){ //top left (0,0)
+          if(board[p.first+1][p.second].letter != ' '){
+            return true;
+          }
+          
+          else if(board[p.first][p.second+1].letter != ' '){
+            return true;
+          }
+        }
+        else if( p.first == 14 && p.second == 0){ //top right (14,0)
+          if(board[p.first-1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second+1].letter != ' '){
+            return true;
+          }
+        }
+        else if(p.first == 0 && p.second == 14){ //bottom left (0,14)
+          
+          if(board[p.first+1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second-1].letter != ' '){
+            return true;
+          }
+        }
+        else if(p.first == 14 && p.second == 14){ //bottom right (14,14)
+          
+          if(board[p.first-1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second-1].letter != ' '){
+            return true;
+          }
+        }
+        else if(p.first == 14){ //right side
+          if(board[p.first-1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second+1].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second-1].letter != ' '){
+            return true;
+          }
+        }
+        else if(p.first == 0){ //left side
+          if(board[p.first+1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second+1].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second-1].letter != ' '){
+            return true;
+          }
+        }
+        else if(p.second == 14){ //bottom
+          if(board[p.first+1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first-1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second-1].letter != ' '){
+            return true;
+          }
+        }
+        else if(p.second == 0){ //top
+          if(board[p.first+1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first-1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second+1].letter != ' '){
+            return true;
+          }
+        }
+        else{ //middle tiles
+          if(board[p.first+1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first-1][p.second].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second+1].letter != ' '){
+            return true;
+          }
+          else if(board[p.first][p.second-1].letter != ' '){
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    else{ //first move - must go thru middle
+      if( find(coords.begin(), coords.end(), center) != coords.end() ){
+        firstMove = true;
+        return true;
+      }
+      else{
+        cout << "First move must go through the middle tile!" << endl;
+        return false;
+      }
+    }
+  }
+
 };
 
 
@@ -360,11 +476,16 @@ public:
     string get_name() {
         return name;
     }
+
+    void set_rack(vector<char> newRack){
+      rack = newRack;
+    }
 };
 
 
 class Game{
   private:
+    bool firstMove = false;
     vector<player> players;
     int num_players;
     Board board;
@@ -380,15 +501,29 @@ class Game{
     Game_loop(0,0);
   }
 
+  
+
   void Game_loop(int player_num,int turn){
     player current = players[player_num]; //get current player
     cout << current.get_name() << "'s turn!" <<  endl;
     cout << "Score: " << current.get_score() << endl;
-    current.print_rack();
+    //current.print_rack();
     Board tempBoard = board; //allows us to attempt moves without editing the real board
+    vector<char> tempRack = current.get_rack();
+    
+    vector<pair<int, int>> coords; 
     while(true){ //player turn runs untill they end their turn - either drawing or making a move
       tempBoard.displayBoard();
+
+      cout << current.get_name() << "'s rack: ";
+      for (char tile : tempRack) {
+          std::cout << tile << "/";
+      }
+      cout << "\n";
+      cout << "Draw - /draw" << endl;
+
       cout << "exchange - /exchange (number of letters to replace)" << endl; //LJ
+
       cout << "to place a tile - /place (x) (y) (letter)" << endl;
       cout << "to undo - /undo" << endl;
       cout << "to confirm moves & end turn - /end" << endl;
@@ -441,22 +576,38 @@ class Game{
         int x = stoi(x_s);
         int y = stoi(y_s);
         char c = c_s[0];
-        tempBoard.placeTile(x,y,c);
+        auto it = find(tempRack.begin(), tempRack.end(), c);
+        if (it != tempRack.end()) {
+          //delete tile from temporary rack
+          tempRack.erase(it);
+          tempBoard.placeTile(x,y,c);
+          coords.emplace_back(x,y);
+        }
+        else{
+          cout << "Only use tiles from your rack!!" << endl;
+        }
+        
       }
       else if(input.find("/undo") != string::npos){ //undo all tiles placed this turn;
         tempBoard = board; //revert to original board
+        tempRack = current.get_rack();
+        coords.clear();
       }
       else if(input.find("/end") != string::npos){ //check if placed tiles are valid
         //still need to check if tiles being played are in the player's rack & removing them from the rack once played
         //also must calculate score of turn
-        if(tempBoard.CheckBoard()){ 
+        if(tempBoard.CheckBoard() && board.checkMove(coords,firstMove)){ 
           board = tempBoard;
           cout << "Good move!" << endl;
+          current.set_rack(tempRack);
+          firstMove = true;
           break;
         }
         else{
           tempBoard = board;
+          tempRack = current.get_rack();
           cout << "Invalid move!" << endl;
+          coords.clear();
         }
       }
       else{
