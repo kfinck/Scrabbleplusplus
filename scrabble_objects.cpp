@@ -118,6 +118,7 @@ public:
     }
 
   }
+
   int getWordScore(const string& word, const vector<int>& letter_multipliers, const int& word_multiplier) {
     int score = 0;
 
@@ -542,69 +543,97 @@ public:
       string input;
       getline(cin, input); //idk why this works better than cin >> lmao
 
-      if (input.find("/exchange") != string::npos) { //draws tile then ends turn -- need to add case when bag is empty?
-        if (scrabbleBag.remaining_tiles() < 7) {
-          cout << "Not enough tiles in bag" << endl;
-        }
+      if (input.find("/exchange") != string::npos) {
+        bool validInput = false;
+        bool out = false;
+        int Q = 0;
+        while (!validInput && !out) {
 
-        pass = 0;
-        istringstream ss(input); //get args
-        string input;
-        getline(ss, input, ' ');
-        getline(ss, input, ' ');// this line overwrites "input" from "/exchange" to the "number of letters to replace"
-        int intput = stoi(input);
-        vector <char> discardedTiles;
+          try {
 
-        for (int i = 0;i < intput; i++)
-        {
-          string str;
-          cout << "Input letter to discard" << endl;
-          getline(cin, str);
+            pass = 0;
 
-          char c = str[0];
+            istringstream ss(input); //get args
+            string input;
+            getline(ss, input, ' ');
+            getline(ss, input, ' ');// this line overwrites "input" from "/exchange" to the "number of letters to replace"
+            int intput = stoi(input);
+            vector <char> discardedTiles;
+            if (scrabbleBag.remaining_tiles() < 7) {
+              cout << "Not enough tiles in bag" << endl;
+            }
+            if (intput == 0) {
+              cout << "exchange cancelled." << endl;
+            }
 
-          auto it = find(tempRack.begin(), tempRack.end(), c);
+            if (intput < 1 || intput > 7) {
+              throw invalid_argument("Invalid number of letters to replace.");
+            }
+            while (Q < intput)
+            {
+              string str;
+              cout << "Input letter to discard" << endl;
+              getline(cin, str);
 
-          if (it != tempRack.end()) {
-            //delete tile from temporary rack
+              char c = str[0];
+              auto it = find(tempRack.begin(), tempRack.end(), c);
 
-            discardedTiles.push_back(c);
-            tempRack.erase(it);
+              if (it != tempRack.end()) {
+                //delete tile from temporary rack
+
+                discardedTiles.push_back(c);
+                tempRack.erase(it);
+                Q++;
+              }
+              else {
+                cout << "letter was not int your rack try again" << endl;
+              }
+            }
+            cout << "BEFORE" << endl;
+            for (char tile : tempRack) {
+              std::cout << tile << "/";
+            }
+            current.print_rack();
+
+
+            current.set_rack(tempRack);
+
+
+            cout << "AFTER" << endl;
+            for (char tile : tempRack) {
+              std::cout << tile << "/";
+            }
+            current.print_rack();
+
+            for (int i = 0; i < intput; i++)
+            {
+              current.add_tile(scrabbleBag);
+            }
+            for (int i = 0; i < discardedTiles.size(); i++)
+            {
+              scrabbleBag.return_tile(discardedTiles[i]);
+
+            }
+            discardedTiles.clear();
+            scrabbleBag.shuffle_bag();
+            //LJ
+            validInput = true;
+          }
+          catch (const invalid_argument& e) {
+            cout << "Invalid input: " << "Please check your formatting and try again." << endl;
+            out = true;
 
           }
+          catch (const exception& e) {
+            cout << "Error: " << e.what() << ". Please try again." << endl;
+            out = true;
 
+          }
         }
-        cout << "BEFORE" << endl;
-        for (char tile : tempRack) {
-          std::cout << tile << "/";
-        }
-        current.print_rack();
-
-
-        current.set_rack(tempRack);
-
-
-        cout << "AFTER" << endl;
-        for (char tile : tempRack) {
-          std::cout << tile << "/";
-        }
-        current.print_rack();
-
-
-        for (int i = 0; i < intput; i++)
+        if (validInput)
         {
-          current.add_tile(scrabbleBag);
+          break;
         }
-        for (int i = 0; i < discardedTiles.size(); i++)
-        {
-          scrabbleBag.return_tile(discardedTiles[i]);
-
-        }
-        discardedTiles.clear();
-        scrabbleBag.shuffle_bag();
-        //LJ
-        break;
-
       }
       if (input.find("/place") != string::npos) { //place tiles one by one
         istringstream ss(input); //get args
@@ -698,7 +727,7 @@ public:
 
 
   bool noMoves() {
-    if (num_players == pass) {
+    if (num_players * 2 == pass) {
       return true;
     }
     else
