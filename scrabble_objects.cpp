@@ -548,11 +548,7 @@ public:
         bool out = false;
         int Q = 0;
         while (!validInput && !out) {
-
           try {
-
-            pass = 0;
-
             istringstream ss(input); //get args
             string input;
             getline(ss, input, ' ');
@@ -586,25 +582,10 @@ public:
                 Q++;
               }
               else {
-                cout << "letter was not int your rack try again" << endl;
+                cout << "letter was not in your rack try again" << endl;
               }
             }
-            cout << "BEFORE" << endl;
-            for (char tile : tempRack) {
-              std::cout << tile << "/";
-            }
-            current.print_rack();
-
-
             current.set_rack(tempRack);
-
-
-            cout << "AFTER" << endl;
-            for (char tile : tempRack) {
-              std::cout << tile << "/";
-            }
-            current.print_rack();
-
             for (int i = 0; i < intput; i++)
             {
               current.add_tile(scrabbleBag);
@@ -632,40 +613,58 @@ public:
         }
         if (validInput)
         {
+          pass = 0;
           break;
         }
       }
       if (input.find("/place") != string::npos) { //place tiles one by one
         istringstream ss(input); //get args
-        string x_s, y_s, c_s;
-        getline(ss, x_s, ' ');
-        getline(ss, x_s, ' ');
-        getline(ss, y_s, ' ');
-        getline(ss, c_s, ' ');
-        cout << x_s << y_s << c_s << endl;
-        int x = stoi(x_s);
-        int y = stoi(y_s);
-        char c = c_s[0];
-        auto it = find(tempRack.begin(), tempRack.end(), c);
-        if (it != tempRack.end()) {
-          //delete tile from temporary rack
-          tempRack.erase(it);
-          if (c == '_')
-          {
-            char blank;
-            cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
-            cin >> blank;
-            tempBoard.placeTile(x, y, blank);
-          }
-          else {
-            tempBoard.placeTile(x, y, c);
-          }
-          coords.emplace_back(x, y);
-        }
-        else {
-          cout << "Only use tiles from your rack!!" << endl;
-        }
+        bool validInput = false;
+        bool out = false;
+        while (!validInput && !out) {
 
+          try {
+            string x_s, y_s, c_s;
+            getline(ss, x_s, ' ');
+            getline(ss, x_s, ' ');
+            getline(ss, y_s, ' ');
+            getline(ss, c_s, ' ');
+            cout << x_s << y_s << c_s << endl;
+            int x = stoi(x_s);
+            int y = stoi(y_s);
+            char c = c_s[0];
+            auto it = find(tempRack.begin(), tempRack.end(), c);
+            if (it != tempRack.end()) {
+              //delete tile from temporary rack
+              tempRack.erase(it);
+              if (c == '_')
+              {
+                char blank;
+                cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
+                cin >> blank;
+                tempBoard.placeTile(x, y, blank);
+              }
+              else {
+                tempBoard.placeTile(x, y, c);
+              }
+              coords.emplace_back(x, y);
+            }
+            else {
+              cout << "Only use tiles from your rack!!" << endl;
+            }
+
+          }
+          catch (const invalid_argument& e) {
+            cout << "Invalid input: " << "Please check your formatting and try again." << endl;
+            out = true;
+
+          }
+          catch (const exception& e) {
+            cout << "Error: " << e.what() << ". Please try again." << endl;
+            out = true;
+
+          }
+        }
       }
       else if (input.find("/undo") != string::npos) { //undo all tiles placed this turn;
         tempBoard = board; //revert to original board
