@@ -47,6 +47,7 @@ private:
 
   vector<string> words;
 
+
 public:
   char letter;
   HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -73,12 +74,14 @@ public:
       for (int j = 0; j < 15; j++)
         if (find(doubleLetterScore.begin(), doubleLetterScore.end(), make_pair(i, j)) != doubleLetterScore.end())
 
+
         {
           board[i][j].value = 1;
           board[i][j].letter = ' ';
         }
         else if (find(tripleLetterScore.begin(), tripleLetterScore.end(), make_pair(i, j)) != tripleLetterScore.end())
         {
+
           board[i][j].value = 2;
           board[i][j].letter = ' ';
         }
@@ -122,8 +125,10 @@ public:
     }
 
   }
+
   int getWordScore(const string& word, const vector<int>& letter_multipliers, const int& word_multiplier) {
     int score = 0;
+
 
     for (size_t i = 0; i < word.size(); i++) {
       score += letter_values[word[i]] * letter_multipliers[i];
@@ -131,6 +136,7 @@ public:
 
     return score * word_multiplier;
   }
+
 
 
   bool placeTile(int row, int col, char letter)
@@ -147,10 +153,12 @@ public:
 
   int CheckBoard() {
 
+
     //iterates through board - checking if consecutive letters are words!!
     //checks horizontally - then vertically
     //floating letters not checked here - they will be checked when moves are made.
     //cout << "at the beginning :))" << endl;
+
 
     int score = 0;
     string word = "";
@@ -162,6 +170,7 @@ public:
       for (int j = 0; j < 15; j++) {
         if (board[i][j].letter != ' ') { //check if spot has a tile on it
           word.push_back(board[i][j].letter);
+
           pair<int,int> square = {i,j};
           //check for tile multiplier
           if(find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()){ //double letter
@@ -185,10 +194,12 @@ public:
             //cout << "letter: " << letter << " value "
           }
 
+
           if (j == 14 && word.length() > 1) { //word goes to end of row/column
 
             bool result = wordChecker.contains(word);
             if (result) {
+
               if(find(words.begin(), words.end(), word) == words.end()){ //if word is new
                 cout << word << " is a word!" << endl;
                 words.push_back(word);
@@ -227,6 +238,7 @@ public:
               }
               score += wordScore;
 
+
             }
             word = ""; //remove valid word
             wordScore = 0;
@@ -234,16 +246,20 @@ public:
             tripled = 0;
           }
 
+
           else {
             cout << word << " is NOT a word!" << endl;
             return 0; //invalid word found -- STOP
+
           }
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
 
+
           doubled = 0;
           tripled = 0;
+
         }
       }
     }
@@ -253,6 +269,7 @@ public:
       for (int j = 0; j < 15; j++) {
         if (board[j][i].letter != ' ') { //check if spot has a tile on it
           word.push_back(board[j][i].letter);
+
 
           pair<int,int> square = {j,i};
           //check for tile multiplier
@@ -295,6 +312,7 @@ public:
               doubled = 0;
               tripled = 0;
 
+
             }
             else {
               cout << word << " is NOT a word!" << endl;
@@ -303,6 +321,7 @@ public:
           }
         }
         else if (word.length() > 1) { //Word ended and is more than 1 letter - check
+
 
           //cout << word << endl; 
           bool result = wordChecker.contains(word);
@@ -333,6 +352,7 @@ public:
           doubled = 0;
           tripled = 0;
 
+
         }
       }
     }
@@ -342,6 +362,7 @@ public:
 
   }
 
+
   bool checkMove(vector<pair<int, int>> coords, bool firstMove) {
     //must check if move is valid
     //first move must go thru center square
@@ -350,7 +371,9 @@ public:
     if (firstMove) { //after first move - must be connected 
       for (const auto& p : coords) {
 
+
         //cout << p.first << ": " << p.second << endl;
+
 
         if (p.first == 0 && p.second == 0) { //top left (0,0)
           if (board[p.first + 1][p.second].letter != ' ') {
@@ -608,6 +631,7 @@ public:
     return score;
   }
 
+
   string get_name() {
     return name;
   }
@@ -620,6 +644,7 @@ public:
     int n = rack.size();
     return n;
   }
+
 
 };
 
@@ -641,15 +666,19 @@ public:
     scrabbleBag = sb;
     turnLimit = turns;
     pass = 0;
+
     Game_loop(0);
+
 
   }
 
 
 
 
+
   void Game_loop(int player_num) {
     player& current = players[player_num]; //get current player
+
 
     cout << current.get_name() << "'s turn!" << endl;
     cout << "Score: " << current.get_score() << endl;
@@ -675,115 +704,133 @@ public:
       cout << "to undo - /undo" << endl;
       cout << "to confirm moves & end turn - /end" << endl;
       cout << "to pass - /pass" << endl;
-
       //cout << "this code work" << endl;
-
       string input;
       getline(cin, input); //idk why this works better than cin >> lmao
 
-      if (input.find("/exchange") != string::npos) { //draws tile then ends turn -- need to add case when bag is empty?
-
-        if (scrabbleBag.remaining_tiles() < 7) {
-          cout << "Not enough tiles in bag" << endl;
-        }
-
-        pass = 0;
-
-        istringstream ss(input); //get args
-        string input;
-        getline(ss, input, ' ');
-        getline(ss, input, ' ');// this line overwrites "input" from "/exchange" to the "number of letters to replace"
-        int intput = stoi(input);
-        vector <char> discardedTiles;
-
-        for (int i = 0;i < intput; i++)
-        {
-          string str;
-          cout << "Input letter to discard" << endl;
-          getline(cin, str);
-
-          char c = str[0];
-
-          auto it = find(tempRack.begin(), tempRack.end(), c);
-
-          if (it != tempRack.end()) {
-            //delete tile from temporary rack
+      if (input.find("/exchange") != string::npos) {
+        bool validInput = false;
+        bool out = false;
+        int Q = 0;
+        while (!validInput && !out) {
+          try {
+            istringstream ss(input); //get args
+            string input;
+            getline(ss, input, ' ');
+            getline(ss, input, ' ');// this line overwrites "input" from "/exchange" to the "number of letters to replace"
+            int intput = stoi(input);
+            vector <char> discardedTiles;
+            if (scrabbleBag.remaining_tiles() < 7) {
+              cout << "Not enough tiles in bag" << endl;
+            }
+            if (intput == 0) {
+              cout << "exchange cancelled." << endl;
+            }
 
 
-            discardedTiles.push_back(c);
-            tempRack.erase(it);
+            if (intput < 1 || intput > 7) {
+              throw invalid_argument("Invalid number of letters to replace.");
+            }
+            while (Q < intput)
+            {
+              string str;
+              cout << "Input letter to discard" << endl;
+              getline(cin, str);
+
+              char c = str[0];
+              auto it = find(tempRack.begin(), tempRack.end(), c);
+
+              if (it != tempRack.end()) {
+                //delete tile from temporary rack
+
+
+                discardedTiles.push_back(c);
+                tempRack.erase(it);
+                Q++;
+              }
+              else {
+                cout << "letter was not in your rack try again" << endl;
+              }
+            }
+            current.set_rack(tempRack);
+            for (int i = 0; i < intput; i++)
+            {
+              current.add_tile(scrabbleBag);
+            }
+            for (int i = 0; i < discardedTiles.size(); i++)
+            {
+              scrabbleBag.return_tile(discardedTiles[i]);
+
+            }
+            discardedTiles.clear();
+            scrabbleBag.shuffle_bag();
+            //LJ
+            validInput = true;
+          }
+          catch (const invalid_argument& e) {
+            cout << "Invalid input: " << "Please check your formatting and try again." << endl;
+            out = true;
 
           }
+          catch (const exception& e) {
+            cout << "Error: " << e.what() << ". Please try again." << endl;
+            out = true;
 
+          }
         }
-        cout << "BEFORE" << endl;
-        for (char tile : tempRack) {
-          std::cout << tile << "/";
-        }
-        current.print_rack();
-
-
-        current.set_rack(tempRack);
-
-
-        cout << "AFTER" << endl;
-        for (char tile : tempRack) {
-          std::cout << tile << "/";
-        }
-        current.print_rack();
-
-
-        for (int i = 0; i < intput; i++)
+        if (validInput)
         {
-          current.add_tile(scrabbleBag);
+          pass = 0;
+          break;
         }
-        for (int i = 0; i < discardedTiles.size(); i++)
-        {
-          scrabbleBag.return_tile(discardedTiles[i]);
-
-        }
-        discardedTiles.clear();
-        scrabbleBag.shuffle_bag();
-        //LJ
-        break;
-
       }
       if (input.find("/place") != string::npos) { //place tiles one by one
         istringstream ss(input); //get args
-        string x_s, y_s, c_s;
-        getline(ss, x_s, ' ');
-        getline(ss, x_s, ' ');
-        getline(ss, y_s, ' ');
-        getline(ss, c_s, ' ');
-        //cout << x_s << y_s << c_s << endl;
-        int x = stoi(x_s);
-        int y = stoi(y_s);
-        char c = c_s[0];
-        auto it = find(tempRack.begin(), tempRack.end(), c);
-        if (it != tempRack.end()) {
-          //delete tile from temporary rack
+        bool validInput = false;
+        bool out = false;
+        while (!validInput && !out) {
 
-          
-          bool empty = false;
-          if (c == '_')
-          {
-            char blank;
-            cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
-            cin >> blank;
-            empty = tempBoard.placeTile(x, y, blank);
+          try {
+            string x_s, y_s, c_s;
+            getline(ss, x_s, ' ');
+            getline(ss, x_s, ' ');
+            getline(ss, y_s, ' ');
+            getline(ss, c_s, ' ');
+            cout << x_s << y_s << c_s << endl;
+            int x = stoi(x_s);
+            int y = stoi(y_s);
+            char c = c_s[0];
+            auto it = find(tempRack.begin(), tempRack.end(), c);
+            if (it != tempRack.end()) {
+              //delete tile from temporary rack
+              tempRack.erase(it);
+              if (c == '_')
+              {
+                char blank;
+                cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
+                cin >> blank;
+                tempBoard.placeTile(x, y, blank);
+              }
+              else {
+                tempBoard.placeTile(x, y, c);
+              }
+              coords.emplace_back(x, y);
+            }
+            else {
+              cout << "Only use tiles from your rack!!" << endl;
+            }
 
           }
-          else {
-            empty = tempBoard.placeTile(x, y, c);
-          }
-          if(empty){
-            coords.emplace_back(x, y);
-            tempRack.erase(it);
-          }
+          catch (const invalid_argument& e) {
+            cout << "Invalid input: " << "Please check your formatting and try again." << endl;
+            out = true;
 
-        }
-        else {
-          cout << "Only use tiles from your rack!!" << endl;
+          }
+          catch (const exception& e) {
+            cout << "Error: " << e.what() << ". Please try again." << endl;
+            out = true;
+
+          }
         }
 
       }
@@ -795,6 +842,7 @@ public:
       else if (input.find("/end") != string::npos) { //check if placed tiles are valid
         //still need to check if tiles being played are in the player's rack & removing them from the rack once played
         //also must calculate score of turn
+
 
         turnScore = tempBoard.CheckBoard();
         //cout << turnScore;
@@ -844,6 +892,7 @@ public:
   }
 
 
+
   bool bagEmpty() {
     if (scrabbleBag.remaining_tiles() == 0)
       return true;
@@ -855,7 +904,8 @@ public:
 
 
   bool noMoves() {
-    if (num_players == pass) {
+
+    if (num_players * 2 == pass) {
       return true;
     }
     else
@@ -931,6 +981,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
+
   Game g(players, number_of_players, scrabbleBoard, scrabbleBag, 5);
   /*
   player Liam("Liam", scrabbleBag);
@@ -958,4 +1009,5 @@ int main(int argc, char* argv[]) {
   return 0;
 
 }
+
 
