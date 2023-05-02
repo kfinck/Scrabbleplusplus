@@ -44,6 +44,10 @@ private:
           {'V', 4}, {'W', 4}, {'X', 8}, {'Y', 4}, {'Z', 10}, {'_', 0}
   };
   Trie wordChecker;
+
+  vector<string> words;
+
+
 public:
   char letter;
   HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -69,12 +73,15 @@ public:
     {
       for (int j = 0; j < 15; j++)
         if (find(doubleLetterScore.begin(), doubleLetterScore.end(), make_pair(i, j)) != doubleLetterScore.end())
+
+
         {
           board[i][j].value = 1;
           board[i][j].letter = ' ';
         }
         else if (find(tripleLetterScore.begin(), tripleLetterScore.end(), make_pair(i, j)) != tripleLetterScore.end())
         {
+
           board[i][j].value = 2;
           board[i][j].letter = ' ';
         }
@@ -122,6 +129,7 @@ public:
   int getWordScore(const string& word, const vector<int>& letter_multipliers, const int& word_multiplier) {
     int score = 0;
 
+
     for (size_t i = 0; i < word.size(); i++) {
       score += letter_values[word[i]] * letter_multipliers[i];
     }
@@ -129,32 +137,88 @@ public:
     return score * word_multiplier;
   }
 
-  void placeTile(int row, int col, char letter)
+
+
+  bool placeTile(int row, int col, char letter)
   {
-    board[row][col].letter = letter;
+    if(board[row][col].letter == ' '){
+      board[row][col].letter = letter;
+      return true;
+    }
+    else{
+      return false;
+    }
 
   }
 
-  bool CheckBoard() {
+  int CheckBoard() {
+
+
     //iterates through board - checking if consecutive letters are words!!
     //checks horizontally - then vertically
     //floating letters not checked here - they will be checked when moves are made.
     //cout << "at the beginning :))" << endl;
+
+
+    int score = 0;
     string word = "";
+    int wordScore = 0;
+    int doubled = 0; //for double word tiles
+    int tripled = 0; //for triple word tiles
+
     for (int i = 0; i < 15; i++) {
       for (int j = 0; j < 15; j++) {
         if (board[i][j].letter != ' ') { //check if spot has a tile on it
           word.push_back(board[i][j].letter);
+
+          pair<int,int> square = {i,j};
+          //check for tile multiplier
+          if(find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()){ //double letter
+            wordScore += letter_values[board[i][j].letter] * 2;
+          }
+          else if(find(tripleLetterScore.begin(), tripleLetterScore.end(), square) != tripleLetterScore.end()){ //triple letter
+            wordScore += letter_values[board[i][j].letter] * 3;
+          }
+
+          else if(find(doubleWordScore.begin(), doubleWordScore.end(), square) != doubleWordScore.end()){ //double word
+            wordScore += letter_values[board[i][j].letter];
+            doubled++;
+          }
+
+          else if(find(tripleWordScore.begin(), tripleWordScore.end(), square) != tripleWordScore.end()){ //triple word
+            wordScore += letter_values[board[i][j].letter];
+            tripled++;
+          }
+          else{
+            wordScore += letter_values[board[i][j].letter];
+            //cout << "letter: " << letter << " value "
+          }
+
+
           if (j == 14 && word.length() > 1) { //word goes to end of row/column
 
             bool result = wordChecker.contains(word);
             if (result) {
-              cout << word << " is a word!" << endl;
-              word = ""; //remove valid word
+
+              if(find(words.begin(), words.end(), word) == words.end()){ //if word is new
+                cout << word << " is a word!" << endl;
+                words.push_back(word);
+                for(int i = 0; i < doubled;i++){
+                  wordScore = wordScore * 2;
+                }
+                for(int j = 0; j < tripled;j++){
+                  wordScore = wordScore * 3;
+                }
+                score += wordScore; //only added to score if the word is new
+              }
+              word = ""; //remove valid word 
+              wordScore = 0;
+              doubled = 0;
+              tripled = 0;
             }
             else {
               cout << word << " is NOT a word!" << endl;
-              return false; //invalid word found -- STOP
+              return 0; //invalid word found -- STOP
             }
           }
         }
@@ -162,16 +226,40 @@ public:
           //cout << word << endl; 
           bool result = wordChecker.contains(word);
           if (result) {
-            cout << word << " is a word!" << endl;
+            //cout << word << " valid score: " << wordScore << endl;
+            if(find(words.begin(), words.end(), word) == words.end()){
+              cout << word << " is a word!" << endl;
+              words.push_back(word);
+              for(int i = 0; i < doubled;i++){
+                wordScore = wordScore * 2;
+              }
+              for(int j = 0; j < tripled;j++){
+                wordScore = wordScore * 3;
+              }
+              score += wordScore;
+
+
+            }
             word = ""; //remove valid word
+            wordScore = 0;
+            doubled = 0;
+            tripled = 0;
           }
+
+
           else {
             cout << word << " is NOT a word!" << endl;
-            return false; //invalid word found -- STOP
+            return 0; //invalid word found -- STOP
+
           }
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
+
+
+          doubled = 0;
+          tripled = 0;
+
         }
       }
     }
@@ -181,39 +269,99 @@ public:
       for (int j = 0; j < 15; j++) {
         if (board[j][i].letter != ' ') { //check if spot has a tile on it
           word.push_back(board[j][i].letter);
+
+
+          pair<int,int> square = {j,i};
+          //check for tile multiplier
+          if(find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()){ //double letter
+            wordScore += letter_values[board[j][i].letter] * 2;
+          }
+          else if(find(tripleLetterScore.begin(), tripleLetterScore.end(), square) != tripleLetterScore.end()){ //triple letter
+            wordScore += letter_values[board[j][i].letter] * 3;
+          }
+
+          else if(find(doubleWordScore.begin(), doubleWordScore.end(), square) != doubleWordScore.end()){ //double word
+            wordScore += letter_values[board[j][i].letter];
+            doubled = true;
+          }
+
+          else if(find(tripleWordScore.begin(), tripleWordScore.end(), square) != tripleWordScore.end()){ //triple word
+            wordScore += letter_values[board[j][i].letter];
+            tripled = true;
+          }
+          else{
+            wordScore += letter_values[board[j][i].letter];
+          }
           if (i == 14 && word.length() > 1) { //word goes to end of row/column
-            //cout << word << endl; 
+
             bool result = wordChecker.contains(word);
             if (result) {
-              cout << word << " is a word!" << endl;
-              word = ""; //remove valid word
+              if(find(words.begin(), words.end(), word) == words.end()){ //if word is new
+                cout << word << " is a word!" << endl;
+                words.push_back(word);
+                for(int i = 0; i < doubled;i++){
+                  wordScore = wordScore * 2;
+                }
+                for(int j = 0; j < tripled;j++){
+                  wordScore = wordScore * 3;
+                }
+                score += wordScore; //only added to score if the word is new
+              }
+              word = ""; //remove valid word 
+              wordScore = 0;
+              doubled = 0;
+              tripled = 0;
+
+
             }
             else {
               cout << word << " is NOT a word!" << endl;
-              return false; //invalid word found -- STOP
+              return 0; //invalid word found -- STOP
             }
           }
         }
         else if (word.length() > 1) { //Word ended and is more than 1 letter - check
-          cout << word << endl;
+
+
+          //cout << word << endl; 
           bool result = wordChecker.contains(word);
           if (result) {
-            cout << word << " is a word!" << endl;
-            word = ""; //remove valid word
+            if(find(words.begin(), words.end(), word) == words.end()){
+              cout << word << " is a word!" << endl;
+              words.push_back(word);
+              for(int i = 0; i < doubled;i++){
+                wordScore = wordScore * 2;
+              }
+              for(int j = 0; j < tripled;j++){
+                wordScore = wordScore * 3;
+              }
+              score += wordScore;
+            }
+              word = ""; //remove valid word
+              wordScore = 0;
+              doubled = 0;
+              tripled = 0;
           }
           else {
             cout << word << " is NOT a word!" << endl;
-            return false; //invalid word found -- STOP
+            return 0; //invalid word found -- STOP
           }
         }
-        else {
+        else { //word is just one letter
           word = ""; //single letter - ignore (for now)
+          doubled = 0;
+          tripled = 0;
+
+
         }
       }
     }
     //cout << "at the end :))" << endl;
-    return true; //made it to end -- all good
+
+    return score; //made it to end -- all good
+
   }
+
 
   bool checkMove(vector<pair<int, int>> coords, bool firstMove) {
     //must check if move is valid
@@ -222,7 +370,11 @@ public:
     pair<int, int> center = { 7,7 };
     if (firstMove) { //after first move - must be connected 
       for (const auto& p : coords) {
-        cout << p.first << ": " << p.second << endl;
+
+
+        //cout << p.first << ": " << p.second << endl;
+
+
         if (p.first == 0 && p.second == 0) { //top left (0,0)
           if (board[p.first + 1][p.second].letter != ' ') {
             return true;
@@ -330,6 +482,8 @@ public:
       }
     }
   }
+
+  
 
 };
 
@@ -477,6 +631,7 @@ public:
     return score;
   }
 
+
   string get_name() {
     return name;
   }
@@ -489,6 +644,8 @@ public:
     int n = rack.size();
     return n;
   }
+
+
 };
 
 
@@ -509,16 +666,24 @@ public:
     scrabbleBag = sb;
     turnLimit = turns;
     pass = 0;
-    Game_loop(0, 0);
+
+    Game_loop(0);
+
+
   }
 
 
 
-  void Game_loop(int player_num, int turn) {
+
+
+  void Game_loop(int player_num) {
     player& current = players[player_num]; //get current player
+
+
     cout << current.get_name() << "'s turn!" << endl;
     cout << "Score: " << current.get_score() << endl;
     //current.print_rack();
+    int turnScore = 0;
     Board tempBoard = board; //allows us to attempt moves without editing the real board
     vector<char> tempRack = current.get_rack();
 
@@ -531,7 +696,7 @@ public:
         std::cout << tile << "/";
       }
       cout << "\n";
-      cout << "Draw - /draw" << endl;
+      //cout << "Draw - /draw" << endl;
 
       cout << "exchange - /exchange (number of letters to replace)" << endl; //LJ
 
@@ -539,7 +704,7 @@ public:
       cout << "to undo - /undo" << endl;
       cout << "to confirm moves & end turn - /end" << endl;
       cout << "to pass - /pass" << endl;
-      cout << "this code work" << endl;
+      //cout << "this code work" << endl;
       string input;
       getline(cin, input); //idk why this works better than cin >> lmao
 
@@ -562,6 +727,7 @@ public:
               cout << "exchange cancelled." << endl;
             }
 
+
             if (intput < 1 || intput > 7) {
               throw invalid_argument("Invalid number of letters to replace.");
             }
@@ -576,6 +742,7 @@ public:
 
               if (it != tempRack.end()) {
                 //delete tile from temporary rack
+
 
                 discardedTiles.push_back(c);
                 tempRack.erase(it);
@@ -665,6 +832,7 @@ public:
 
           }
         }
+
       }
       else if (input.find("/undo") != string::npos) { //undo all tiles placed this turn;
         tempBoard = board; //revert to original board
@@ -674,11 +842,19 @@ public:
       else if (input.find("/end") != string::npos) { //check if placed tiles are valid
         //still need to check if tiles being played are in the player's rack & removing them from the rack once played
         //also must calculate score of turn
-        if (tempBoard.CheckBoard() && board.checkMove(coords, firstMove)) {
+
+
+        turnScore = tempBoard.CheckBoard();
+        //cout << turnScore;
+        if (turnScore > 0 && board.checkMove(coords, firstMove)) {
+
           pass = 0;
           board = tempBoard;
           cout << "Good move!" << endl;
+          cout << "Score for move: " << turnScore << endl;
+          //board.calculateScore(coords);
           current.set_rack(tempRack);
+          current.add_score(turnScore);
           firstMove = true;
           while (current.rack_size() < 7) {
             current.add_tile(scrabbleBag);
@@ -702,18 +878,20 @@ public:
       }
 
     }
-    if (player_num == num_players - 1) { //either end game, go to next player, or loop back to first player
-      if (turn == turnLimit) {
-        endGame();
-      }
-      else {
-        Game_loop(0, turn + 1);
-      }
+
+    if(noMoves()){ //if end game conditions are met
+      endGame();
     }
-    else {
-      Game_loop(player_num + 1, turn);
+    else if(player_num == num_players - 1){ //last player turn ended - go to first
+      Game_loop(0);
+    }
+    else{ //go to next player's turn
+      Game_loop(player_num + 1); 
+
     }
   }
+
+
 
   bool bagEmpty() {
     if (scrabbleBag.remaining_tiles() == 0)
@@ -726,12 +904,14 @@ public:
 
 
   bool noMoves() {
+
     if (num_players * 2 == pass) {
       return true;
     }
     else
       return false;
   }
+
 
   void endGame() {
     player winner = players[0];
@@ -801,8 +981,9 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  Game g(players, number_of_players, scrabbleBoard, scrabbleBag, 5);
 
+  Game g(players, number_of_players, scrabbleBoard, scrabbleBag, 5);
+  /*
   player Liam("Liam", scrabbleBag);
 
   scrabbleBoard.placeTile(7, 7, 'S');
@@ -823,6 +1004,10 @@ int main(int argc, char* argv[]) {
   scrabbleBag.end_tiles();
 
   std::cout << std::endl;
+  */
 
   return 0;
+
 }
+
+
