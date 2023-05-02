@@ -44,7 +44,9 @@ private:
           {'V', 4}, {'W', 4}, {'X', 8}, {'Y', 4}, {'Z', 10}, {'_', 0}
   };
   Trie wordChecker;
+
   vector<string> words;
+
 public:
   char letter;
   HANDLE hconsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -70,6 +72,7 @@ public:
     {
       for (int j = 0; j < 15; j++)
         if (find(doubleLetterScore.begin(), doubleLetterScore.end(), make_pair(i, j)) != doubleLetterScore.end())
+
         {
           board[i][j].value = 1;
           board[i][j].letter = ' ';
@@ -129,6 +132,7 @@ public:
     return score * word_multiplier;
   }
 
+
   bool placeTile(int row, int col, char letter)
   {
     if(board[row][col].letter == ' '){
@@ -142,10 +146,12 @@ public:
   }
 
   int CheckBoard() {
+
     //iterates through board - checking if consecutive letters are words!!
     //checks horizontally - then vertically
     //floating letters not checked here - they will be checked when moves are made.
     //cout << "at the beginning :))" << endl;
+
     int score = 0;
     string word = "";
     int wordScore = 0;
@@ -220,12 +226,14 @@ public:
                 wordScore = wordScore * 3;
               }
               score += wordScore;
+
             }
             word = ""; //remove valid word
             wordScore = 0;
             doubled = 0;
             tripled = 0;
           }
+
           else {
             cout << word << " is NOT a word!" << endl;
             return 0; //invalid word found -- STOP
@@ -233,6 +241,7 @@ public:
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
+
           doubled = 0;
           tripled = 0;
         }
@@ -244,6 +253,7 @@ public:
       for (int j = 0; j < 15; j++) {
         if (board[j][i].letter != ' ') { //check if spot has a tile on it
           word.push_back(board[j][i].letter);
+
           pair<int,int> square = {j,i};
           //check for tile multiplier
           if(find(doubleLetterScore.begin(), doubleLetterScore.end(), square) != doubleLetterScore.end()){ //double letter
@@ -284,6 +294,7 @@ public:
               wordScore = 0;
               doubled = 0;
               tripled = 0;
+
             }
             else {
               cout << word << " is NOT a word!" << endl;
@@ -292,6 +303,7 @@ public:
           }
         }
         else if (word.length() > 1) { //Word ended and is more than 1 letter - check
+
           //cout << word << endl; 
           bool result = wordChecker.contains(word);
           if (result) {
@@ -320,11 +332,14 @@ public:
           word = ""; //single letter - ignore (for now)
           doubled = 0;
           tripled = 0;
+
         }
       }
     }
     //cout << "at the end :))" << endl;
+
     return score; //made it to end -- all good
+
   }
 
   bool checkMove(vector<pair<int, int>> coords, bool firstMove) {
@@ -334,7 +349,9 @@ public:
     pair<int, int> center = { 7,7 };
     if (firstMove) { //after first move - must be connected 
       for (const auto& p : coords) {
+
         //cout << p.first << ": " << p.second << endl;
+
         if (p.first == 0 && p.second == 0) { //top left (0,0)
           if (board[p.first + 1][p.second].letter != ' ') {
             return true;
@@ -603,6 +620,7 @@ public:
     int n = rack.size();
     return n;
   }
+
 };
 
 
@@ -624,12 +642,15 @@ public:
     turnLimit = turns;
     pass = 0;
     Game_loop(0);
+
   }
+
 
 
 
   void Game_loop(int player_num) {
     player& current = players[player_num]; //get current player
+
     cout << current.get_name() << "'s turn!" << endl;
     cout << "Score: " << current.get_score() << endl;
     //current.print_rack();
@@ -654,16 +675,20 @@ public:
       cout << "to undo - /undo" << endl;
       cout << "to confirm moves & end turn - /end" << endl;
       cout << "to pass - /pass" << endl;
+
       //cout << "this code work" << endl;
+
       string input;
       getline(cin, input); //idk why this works better than cin >> lmao
 
       if (input.find("/exchange") != string::npos) { //draws tile then ends turn -- need to add case when bag is empty?
+
         if (scrabbleBag.remaining_tiles() < 7) {
           cout << "Not enough tiles in bag" << endl;
         }
 
         pass = 0;
+
         istringstream ss(input); //get args
         string input;
         getline(ss, input, ' ');
@@ -683,6 +708,7 @@ public:
 
           if (it != tempRack.end()) {
             //delete tile from temporary rack
+
 
             discardedTiles.push_back(c);
             tempRack.erase(it);
@@ -736,6 +762,7 @@ public:
         auto it = find(tempRack.begin(), tempRack.end(), c);
         if (it != tempRack.end()) {
           //delete tile from temporary rack
+
           
           bool empty = false;
           if (c == '_')
@@ -753,6 +780,7 @@ public:
             coords.emplace_back(x, y);
             tempRack.erase(it);
           }
+
         }
         else {
           cout << "Only use tiles from your rack!!" << endl;
@@ -767,9 +795,11 @@ public:
       else if (input.find("/end") != string::npos) { //check if placed tiles are valid
         //still need to check if tiles being played are in the player's rack & removing them from the rack once played
         //also must calculate score of turn
+
         turnScore = tempBoard.CheckBoard();
         //cout << turnScore;
         if (turnScore > 0 && board.checkMove(coords, firstMove)) {
+
           pass = 0;
           board = tempBoard;
           cout << "Good move!" << endl;
@@ -800,6 +830,7 @@ public:
       }
 
     }
+
     if(noMoves()){ //if end game conditions are met
       endGame();
     }
@@ -808,8 +839,12 @@ public:
     }
     else{ //go to next player's turn
       Game_loop(player_num = 1); 
+
     }
+    else
+      return false;
   }
+
 
   bool bagEmpty() {
     if (scrabbleBag.remaining_tiles() == 0)
@@ -828,6 +863,7 @@ public:
     else
       return false;
   }
+
 
   void endGame() {
     player winner = players[0];
@@ -921,4 +957,6 @@ int main(int argc, char* argv[]) {
   std::cout << std::endl;
 
   return 0;
+
 }
+
