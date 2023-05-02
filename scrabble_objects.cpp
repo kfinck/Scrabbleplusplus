@@ -126,9 +126,15 @@ public:
         return score * word_multiplier;
     }
 
-    void placeTile(int row, int col, char letter)
+    bool placeTile(int row, int col, char letter)
     {
+      if(board[row][col].letter == ' '){
         board[row][col].letter = letter;
+        return true;
+      }
+      else{
+        return false;
+      }
 
     }
 
@@ -146,11 +152,11 @@ public:
                
               bool result = wordChecker.contains(word);
               if(result){
-                cout << word << " is a word!" << endl;
+                //cout << word << " is a word!" << endl;
                 word = ""; //remove valid word
               }
               else{
-                cout << word << " is NOT a word!" << endl;
+                //cout << word << " is NOT a word!" << endl;
                 return false; //invalid word found -- STOP
               }
             }
@@ -159,11 +165,11 @@ public:
             //cout << word << endl; 
             bool result = wordChecker.contains(word);
             if(result){
-              cout << word << " is a word!" << endl;
+              //cout << word << " is a word!" << endl;
               word = ""; //remove valid word
             }
             else{
-              cout << word << " is NOT a word!" << endl;
+              //cout << word << " is NOT a word!" << endl;
               return false; //invalid word found -- STOP
             }
           }
@@ -191,14 +197,14 @@ public:
               }
             }
           }else if(word.length() > 1){ //Word ended and is more than 1 letter - check
-            cout << word << endl;
+            //cout << word << endl;
             bool result = wordChecker.contains(word);
             if(result){
-              cout << word << " is a word!" << endl;
+              //cout << word << " is a word!" << endl;
               word = ""; //remove valid word
             }
             else{
-              cout << word << " is NOT a word!" << endl;
+              //cout << word << " is NOT a word!" << endl;
               return false; //invalid word found -- STOP
             }
           }
@@ -218,7 +224,7 @@ public:
     pair<int,int> center = {7,7};
     if(firstMove){ //after first move - must be connected 
       for (const auto& p : coords) {
-        cout << p.first << ": " << p.second << endl;
+        //cout << p.first << ": " << p.second << endl;
         if( p.first == 0 && p.second == 0){ //top left (0,0)
           if(board[p.first+1][p.second].letter != ' '){
             return true;
@@ -520,7 +526,6 @@ class Game{
           std::cout << tile << "/";
       }
       cout << "\n";
-      cout << "Draw - /draw" << endl;
 
       cout << "exchange - /exchange (number of letters to replace)" << endl; //LJ
 
@@ -589,9 +594,10 @@ class Game{
         auto it = find(tempRack.begin(), tempRack.end(), c);
         if (it != tempRack.end()) {
           //delete tile from temporary rack
-          tempRack.erase(it);
-          tempBoard.placeTile(x,y,c);
-          coords.emplace_back(x,y);
+          if(tempBoard.placeTile(y,x,c)){
+            tempRack.erase(it);
+            coords.emplace_back(x,y);
+          }
         }
         else{
           cout << "Only use tiles from your rack!!" << endl;
