@@ -1,0 +1,4 @@
+.vscode/
+scrabble.exe
+scrabble_objects.o
+wordChecker.o
