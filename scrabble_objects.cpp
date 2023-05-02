@@ -529,29 +529,38 @@ class Game{
       cout << "to confirm moves & end turn - /end" << endl;
       string input;
       getline(cin,input); //idk why this works better than cin >> lmao
+      
       if(input.find("/exchange") != string::npos){ //draws tile then ends turn -- need to add case when bag is empty?
         istringstream ss(input); //get args
         string input;
         getline(ss, input, ' ');
         getline(ss, input, ' ');// this line overwrites "input" from "/exchange" to the "number of letters to replace"
-        int input = stoi(intput);
-        <vector> char discardedTiles;
-        for(int i = 0;i < input; i++)
+        int intput = stoi(input);
+        vector <char> discardedTiles;
+        
+        for(int i = 0;i < intput; i++)
         {
-          string c;
+          string str;
           cout << "Input letter to discard" << endl;
-          getline(cin, c);
-          if (find(tempRack.begin(), tempRack.end(), c) != tempRack.end()) {
-          //delete tile from temporary rack
-          auto it = find(tempRack.begin(), tempRack.end(), c[0]);
-        if (it != tempRack.end()) {
-            discardedTiles.push_back(c[0]);
-            tempRack.erase(it);
-        }
+          getline(cin, str);
 
-    }
+          char c = str[0];
+
+          auto it = find(tempRack.begin(), tempRack.end(), c);
+          
+          if (it != tempRack.end()) {
+          //delete tile from temporary rack
+            
+            if (it != tempRack.end()) {
+                discardedTiles.push_back(c);
+                tempRack.erase(it);
+            }
+
+          }
+          
         }
-        for(int i = 0; i < input; i++)
+        
+        for(int i = 0; i < intput; i++)
         {
           current.add_tile(scrabbleBag);
         }
@@ -564,8 +573,9 @@ class Game{
         scrabbleBag.shuffle_bag();
         //LJ
         break;
-      
-      else if(input.find("/place") != string::npos){ //place tiles one by one
+        
+      }
+      if(input.find("/place") != string::npos){ //place tiles one by one
         istringstream ss(input); //get args
         string x_s, y_s, c_s;
         getline(ss, x_s, ' ');
@@ -627,6 +637,7 @@ class Game{
       Game_loop(player_num+1,turn);
     }
   }
+  
 
   void endGame(){
     player winner = players[0];
