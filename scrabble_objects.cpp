@@ -945,7 +945,7 @@ int main(int argc, char* argv[]) {
   ///start game loop
   int number_of_players = 5;
   while (number_of_players > 4 || number_of_players < 1) {
-    cout << " please enter a number of players between 1-4" << endl;
+    cout << " please enter a number of players between 2-4" << endl;
     cin >> number_of_players;
     if (number_of_players > 4) {
       cout << "You cannot have more than four players" << endl;
