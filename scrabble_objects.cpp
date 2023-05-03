@@ -188,7 +188,7 @@ public:
           else {
             wordScore += letter_values[board[i][j].letter];
           }
-          //cout << "letter: " << letter << " value " << value << endl;
+          cout << "letter: " << board[i][j].letter << " value " << wordScore << endl;
 
           if (j == 14 && word.length() > 1) { //word goes to end of row/column
 
@@ -250,7 +250,7 @@ public:
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
-
+          wordScore = 0;
 
           doubled = 0;
           tripled = 0;
@@ -259,6 +259,7 @@ public:
       }
     }
     //column by column
+    wordScore = 0;
     word = "";
     for (int i = 0; i < 15; i++) {
       for (int j = 0; j < 15; j++) {
@@ -345,6 +346,7 @@ public:
         }
         else { //word is just one letter
           word = ""; //single letter - ignore (for now)
+          wordScore = 0;
           doubled = 0;
           tripled = 0;
 
@@ -802,7 +804,7 @@ public:
             getline(ss, x_s, ' ');
             getline(ss, y_s, ' ');
             getline(ss, c_s, ' ');
-            cout << x_s << y_s << c_s << endl;
+            //cout << x_s << y_s << c_s << endl;
             int x = stoi(x_s);
             int y = stoi(y_s);
             char c = c_s[0];
@@ -828,12 +830,12 @@ public:
 
           }
           catch (const invalid_argument& e) {
-            cout << "Invalid input: " << "Please check your formatting and try again." << endl;
+            //cout << "Invalid input: " << "Please check your formatting and try again." << endl;
             out = true;
 
           }
           catch (const exception& e) {
-            cout << "Error: " << e.what() << ". Please try again." << endl;
+            //cout << "Error: " << e.what() << ". Please try again." << endl;
             out = true;
 
           }
