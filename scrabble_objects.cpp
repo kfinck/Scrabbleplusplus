@@ -187,9 +187,8 @@ public:
           }
           else {
             wordScore += letter_values[board[i][j].letter];
-            //cout << "letter: " << letter << " value "
           }
-
+          //cout << "letter: " << letter << " value " << value << endl;
 
           if (j == 14 && word.length() > 1) { //word goes to end of row/column
 
@@ -288,6 +287,7 @@ public:
           else {
             wordScore += letter_values[board[j][i].letter];
           }
+          //cout << "letter: " << letter << " value " << value << endl;
           if (i == 14 && word.length() > 1) { //word goes to end of row/column
 
             bool result = wordChecker.contains(word);
@@ -815,12 +815,12 @@ public:
                 char blank;
                 cout << "You selected a blank tile! Please input the character you'd like that blank to represent" << endl;
                 cin >> blank;
-                tempBoard.placeTile(x, y, blank);
+                tempBoard.placeTile(y, x, blank);
               }
               else {
-                tempBoard.placeTile(x, y, c);
+                tempBoard.placeTile(y, x, c);
               }
-              coords.emplace_back(x, y);
+              coords.emplace_back(y, x);
             }
             else {
               cout << "Only use tiles from your rack!!" << endl;
